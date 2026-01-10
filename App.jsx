@@ -13,9 +13,9 @@ const App = () => {
     // <Login />
   //  <Verified/> 
     // <AccountCreated />
-    <CreatePub_profile />
+    // <CreatePub_profile />
     // <Greating />
-    // <Home />
+    <Home />
     // <Settings />
   )
 }
