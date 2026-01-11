@@ -1,10 +1,11 @@
 import { StyleSheet, Text, View, Image, Pressable } from 'react-native';
 import React from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Home = () => {
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.headerWrapper}>
         <View style={styles.headerInner}>
           <View style={styles.onlineBox}>
@@ -49,7 +50,7 @@ const Home = () => {
           <Icon name="settings-outline" size={24} color="#777" />
         </Pressable>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
