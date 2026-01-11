@@ -12,8 +12,68 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
+/* -------------------- Sample Messages Data -------------------- */
+const INITIAL_MESSAGES = {
+  'sem6-main': [
+    {
+      id: 1,
+      text: 'Anyone from ML section?',
+      time: '11:50',
+      isMe: true,
+    },
+    {
+      id: 2,
+      text: 'Yes !!',
+      time: '11:40',
+      isMe: false,
+    },
+    {
+      id: 3,
+      text: 'I am looking for a girl member for my team ID - 115.',
+      time: '11:45',
+      isMe: false,
+    },
+  ],
+  'pbl-compiler': [
+    {
+      id: 1,
+      text: 'Hey, anyone working on the compiler project?',
+      time: '10:30',
+      isMe: false,
+    },
+    {
+      id: 2,
+      text: 'Yes! I am working on the lexical analyzer part',
+      time: '10:32',
+      isMe: true,
+    },
+  ],
+  'pbl-database': [
+    {
+      id: 1,
+      text: 'Anyone started with the normalization assignment?',
+      time: '09:15',
+      isMe: false,
+    },
+    {
+      id: 2,
+      text: 'Yes, I completed it yesterday',
+      time: '09:20',
+      isMe: true,
+    },
+  ],
+  'pbl-networks': [
+    {
+      id: 1,
+      text: 'Looking for teammates for networking project',
+      time: '10:30',
+      isMe: false,
+    },
+  ],
+};
+
 /* -------------------- Community Header Card -------------------- */
-const CommunityHeaderCard = () => {
+const CommunityHeaderCard = ({ title, subtitle }) => {
   return (
     <View style={styles.communityCard}>
       <View style={styles.communityIcon}>
@@ -21,8 +81,8 @@ const CommunityHeaderCard = () => {
       </View>
 
       <View style={{ flex: 1 }}>
-        <Text style={styles.communityTitle}>Community {'{ Sem 6 }'}</Text>
-        <Text style={styles.communitySub}>● 200 Students active</Text>
+        <Text style={styles.communityTitle}>{title}</Text>
+        <Text style={styles.communitySub}>● {subtitle}</Text>
       </View>
 
       <Pressable>
@@ -62,28 +122,44 @@ const MessageBar = ({ text, setText, onSend }) => {
 };
 
 /* -------------------- Full Screen Chat -------------------- */
-const MainCommunityChat = ({ navigation }) => {
+const MainCommunityChat = ({ navigation, route }) => {
+  // Get community details from navigation params
+  const {
+    communityId = 'default',
+    communityTitle = 'Community',
+    communitySubtitle = 'Active members',
+    communityType = 'main',
+  } = route.params || {};
+
   const [text, setText] = useState('');
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      text: 'Anyone from ML section?',
-      time: '11:50',
-      isMe: true,
-    },
-    {
-      id: 2,
-      text: 'Yes !!',
-      time: '11:40',
-      isMe: false,
-    },
-    {
-      id: 3,
-      text: 'I am looking for a girl member for my team ID - 115.',
-      time: '11:45',
-      isMe: false,
-    },
-  ]);
+  
+  // Initialize messages based on community ID
+  const getInitialMessages = (communityId) => {
+    // You can load different messages based on communityId
+    // For now, using default messages
+    return [
+      {
+        id: 1,
+        text: 'Anyone from ML section?',
+        time: '11:50',
+        isMe: true,
+      },
+      {
+        id: 2,
+        text: 'Yes !!',
+        time: '11:40',
+        isMe: false,
+      },
+      {
+        id: 3,
+        text: 'I am looking for a girl member for my team ID - 115.',
+        time: '11:45',
+        isMe: false,
+      },
+    ];
+  };
+
+  const [messages, setMessages] = useState(getInitialMessages());
 
   const scrollViewRef = useRef(null);
 
@@ -97,7 +173,7 @@ const MainCommunityChat = ({ navigation }) => {
       });
 
       const newMessage = {
-        id: messages.length + 1,
+        id: Date.now().toString(),
         text: text.trim(),
         time: timeString,
         isMe: true,
@@ -133,7 +209,10 @@ const MainCommunityChat = ({ navigation }) => {
             <Pressable style={styles.backBtn} onPress={() => navigation.goBack()}>
               <Icon name="arrow-back" size={20} color="#000" />
             </Pressable>
-            <CommunityHeaderCard />
+            <CommunityHeaderCard
+              title={communityTitle}
+              subtitle={communitySubtitle}
+            />
           </View>
 
           {/* Chat Area */}

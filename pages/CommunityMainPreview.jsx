@@ -5,10 +5,39 @@ import {
   View,
   Pressable,
   ScrollView,
-  TextInput,
+  Image,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+/* -------------------- Community Data -------------------- */
+const COMMUNITIES_DATA = [
+  {
+    id: 'sem6-main',
+    type: 'main',
+    title: 'Community { Sem 6 }',
+    subtitle: '200 Students active',
+    icon: 'people',
+  },
+];
+
+const PBL_COMMUNITIES_DATA = [
+  {
+    id: 'pbl-compiler',
+    type: 'pbl',
+    title: 'Compiler Design',
+    subtitle: 'View Community for Compiler Design',
+    image: require('../assets/pblimgcompiler.png'),
+  },
+  {
+    id: 'pbl-dev',
+    type: 'pbl',
+    title: 'Web Developement',
+    subtitle: 'View Community for Database Management',
+    image: require('../assets/pblimgdev.png'), // Replace with actual image
+  },
+
+];
 
 /* -------------------- Tabs -------------------- */
 const CommunityTabs = ({ activeTab, onChange }) => {
@@ -37,16 +66,16 @@ const CommunityTabs = ({ activeTab, onChange }) => {
 };
 
 /* -------------------- Community Card -------------------- */
-const CommunityCard = ({ onPress }) => {
+const CommunityCard = ({ community, onPress }) => {
   return (
     <Pressable style={styles.communityCard} onPress={onPress}>
       <View style={styles.communityIcon}>
-        <Icon name="people" size={18} color="#ff8c00" />
+        <Icon name={community.icon} size={18} color="#ff8c00" />
       </View>
 
       <View style={{ flex: 1 }}>
-        <Text style={styles.communityTitle}>Community {'{ Sem 6 }'}</Text>
-        <Text style={styles.communitySub}>● 200 Students active</Text>
+        <Text style={styles.communityTitle}>{community.title}</Text>
+        <Text style={styles.communitySub}>● {community.subtitle}</Text>
       </View>
 
       <Pressable>
@@ -56,43 +85,37 @@ const CommunityCard = ({ onPress }) => {
   );
 };
 
-/* -------------------- Message Bar -------------------- */
-const MessageBar = ({ text, setText, onFocus }) => {
-  const [height, setHeight] = useState(44);
-
+/* -------------------- PBL Card -------------------- */
+const PBLCard = ({ community, onPress }) => {
   return (
-    <View style={styles.messageBar}>
-      <TextInput
-        placeholder="Write a message..."
-        placeholderTextColor="#999"
-        value={text}
-        multiline
-        onChangeText={setText}
-        onFocus={onFocus}
-        onContentSizeChange={(e) =>
-          setHeight(Math.min(120, e.nativeEvent.contentSize.height))
-        }
-        style={[styles.messageInput, { height }]}
+    <Pressable style={styles.PBLcard} onPress={onPress}>
+      <Image
+        source={community.image}
+        style={styles.PBLcardImage}
+        resizeMode="contain"
       />
-
-      <Pressable style={styles.iconButton}>
-        <Icon name="mic" size={18} color="#000" />
-      </Pressable>
-
-      <Pressable style={styles.iconButton}>
-        <Icon name="send" size={18} color="#000" />
-      </Pressable>
-    </View>
+      <View style={styles.PBLcardContent}>
+        <Text style={styles.PBLcardTitle}>{community.title}</Text>
+        <View style={styles.PBLcardSubtitleRow}>
+          <Text style={styles.PBLcardSubtitle}>{community.subtitle}</Text>
+          <Icon name="arrow-forward" size={16} color="#666" />
+        </View>
+      </View>
+    </Pressable>
   );
 };
 
 /* -------------------- Main Screen -------------------- */
 const CommunityMainPreview = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState('Main');
-  const [text, setText] = useState('');
 
-  const openFullChat = () => {
-    navigation.navigate('MainCommunityChat');
+  const openCommunityChat = (community) => {
+    navigation.navigate('MainCommunityChat', {
+      communityId: community.id,
+      communityTitle: community.title,
+      communitySubtitle: community.subtitle,
+      communityType: community.type,
+    });
   };
 
   return (
@@ -108,31 +131,28 @@ const CommunityMainPreview = ({ navigation }) => {
       {/* Tabs */}
       <CommunityTabs activeTab={activeTab} onChange={setActiveTab} />
 
-      {/* Main tab content Chat Area (Main tab only) */}
+      {/* Main tab content */}
       {activeTab === 'Main' && (
-        <>
-          <CommunityCard onPress={openFullChat} />
-          <View style={styles.chatWrapper}>
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <View style={styles.bubbleMe}>
-                <Text style={styles.bubbleText}>Anyone from ML section?</Text>
-                <Text style={styles.bubbleTime}>11:50</Text>
-              </View>
+        <ScrollView
+          style={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {COMMUNITIES_DATA.map((community) => (
+            <CommunityCard
+              key={community.id}
+              community={community}
+              onPress={() => openCommunityChat(community)}
+            />
+          ))}
 
-              <View style={styles.bubbleOther}>
-                <Text style={styles.bubbleText}>Yes !!</Text>
-                <Text style={styles.bubbleTime}>11:40</Text>
-              </View>
-
-              <View style={styles.bubbleOther}>
-                <Text style={styles.bubbleText}>
-                  I am looking for a girl member for my team ID - 115.
-                </Text>
-                <Text style={styles.bubbleTime}>11:45</Text>
-              </View>
-            </ScrollView>
-          </View>
-        </>
+          {PBL_COMMUNITIES_DATA.map((community) => (
+            <PBLCard
+              key={community.id}
+              community={community}
+              onPress={() => openCommunityChat(community)}
+            />
+          ))}
+        </ScrollView>
       )}
 
       {/* Join tab content */}
@@ -150,11 +170,6 @@ const CommunityMainPreview = ({ navigation }) => {
           <Text style={styles.emptyText}>Your personal chats appear here</Text>
         </View>
       )}
-
-      {/* Message Bar - Opens full chat when focused */}
-      {activeTab === 'Main' && (
-        <MessageBar text={text} setText={setText} onFocus={openFullChat} />
-      )}
     </SafeAreaView>
   );
 };
@@ -166,6 +181,49 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+
+  scrollContent: {
+    flex: 1,
+  },
+
+  /* PBL Card */
+  PBLcard: {
+    marginHorizontal: 16,
+    marginTop: 15,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    overflow: 'hidden',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    marginBottom: 10,
+  },
+  PBLcardImage: {
+    width: '100%',
+    height: 140,
+    backgroundColor: '#e0e0e0',
+  },
+  PBLcardContent: {
+    padding: 12,
+  },
+  PBLcardTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#000',
+    marginBottom: 6,
+  },
+  PBLcardSubtitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  PBLcardSubtitle: {
+    fontSize: 12,
+    color: '#666',
+    flex: 1,
   },
 
   /* Header */
@@ -252,42 +310,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 
-  /* Chat */
-  chatWrapper: {
-    flex: 1,
-    marginHorizontal: 16,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderRadius: 12,
-    padding: 10,
-  },
-  bubbleMe: {
-    alignSelf: 'flex-end',
-    backgroundColor: '#d9f7be',
-    padding: 10,
-    borderRadius: 14,
-    marginBottom: 10,
-    maxWidth: '75%',
-  },
-  bubbleOther: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#f1f1f1',
-    padding: 10,
-    borderRadius: 14,
-    marginBottom: 10,
-    maxWidth: '75%',
-  },
-  bubbleText: {
-    fontSize: 14,
-    color: '#000',
-  },
-  bubbleTime: {
-    fontSize: 10,
-    color: '#6b6b6b',
-    alignSelf: 'flex-end',
-    marginTop: 4,
-  },
-
   /* Empty State */
   emptyState: {
     flex: 1,
@@ -300,36 +322,5 @@ const styles = StyleSheet.create({
     color: '#999',
     marginTop: 16,
     textAlign: 'center',
-  },
-
-  /* Message Bar */
-  messageBar: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    margin: 16,
-    padding: 10,
-    backgroundColor: '#f1f1f1',
-    borderRadius: 24,
-  },
-  messageInput: {
-    flex: 1,
-    minHeight: 44,
-    maxHeight: 120,
-    backgroundColor: '#fff',
-    borderRadius: 18,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    fontSize: 15,
-    textAlignVertical: 'top',
-    color: '#000',
-  },
-  iconButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 8,
   },
 });
